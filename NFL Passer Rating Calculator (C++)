@@ -1,0 +1,208 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+
+double getCompletions();
+double getAttempts();
+double getYards();
+double getTDs();
+double getINTS();
+double compPerAtt(double, double);
+double ydPerAtt(double, double);
+double tdPerAtt(double, double);
+double intPerAtt(double, double);
+double calcPR(double, double, double, double);
+void pRating(double);
+
+int main()
+{
+	int numQB;
+	double completion, attempt, yards, td, interception;
+	double compPer, ydAtt, tdAtt, intAtt;
+	double passerRating = 0.0;
+	double totalPR = 0.0;
+	cout << "Passer Rating Calculator\n\n";
+	cout << "How many Ratings do you want to calculate? ";
+	cin >> numQB;
+	
+	while(numQB < 0)
+	{
+		cout << "\nERROR Must be positive number. Try Again\n";
+		cout << "How many Ratings do you want to calculate?";
+		cin >> numQB;
+	}
+	
+	for(int count = 0; count < numQB; count++)
+	{
+		completion = getCompletions();
+		attempt = getAttempts();
+		yards = getYards();
+		td = getTDs();
+		interception = getINTS();
+		compPer = compPerAtt(completion, attempt);
+		ydAtt = ydPerAtt(yards, attempt);
+		tdAtt = tdPerAtt(td, attempt);
+		intAtt = intPerAtt(interception, attempt);	
+		passerRating = calcPR(compPer, ydAtt, tdAtt, intAtt);
+		pRating(passerRating);
+		totalPR += passerRating;
+	}
+	cout << setprecision(1) << showpoint << fixed;
+	cout << "My average PR is " << (totalPR / numQB) << endl;
+	return 0;
+}	
+
+double getCompletions()
+{
+	double completion;
+	cout << "\n\tCompletions: ";
+	cin >> completion;
+	
+	while(completion < 0)
+	{
+		cout << "\n\nCompletions: ";
+		cin >> completion;
+	}
+	return completion;
+}
+
+double getAttempts()
+{
+	double completion;
+	cout << "\t   Attempts: ";
+	cin >> completion;
+	
+	while(completion <= 0)
+	{
+		cout << "\n\nAttempts: ";
+		cin >> completion;
+	}
+
+	return completion;
+}
+
+double getYards()
+{
+	double completion;
+	cout << "\t      Yards: ";
+	cin >> completion;
+	
+	return completion;
+}
+double getTDs()
+{
+	double completion;
+	cout << "\t        TDs: ";
+	cin >> completion;
+	
+	while(completion < 0)
+	{
+		cout << "\n\nTDs:";
+		cin >> completion;
+	}
+	
+	return completion;
+}
+
+double getINTS()
+{
+	double completion;
+	cout << "\t       INTs: ";
+	cin >> completion;
+	while(completion < 0)
+	{
+		cout << "\n\nINTs: ";
+		cin >> completion;
+	}
+	
+	return completion;
+}
+double compPerAtt(double completion, double attempt)
+{
+	double CA;
+	double CA1 = (completion / attempt);
+	
+	if (CA1 >= .775)
+	{
+		CA = 2.375;
+	}
+	else if(CA1 <= 0.3)
+	{
+		CA = 0;
+	}
+	else 
+	{
+		CA = ((CA1- 0.3) * 5); 
+	}
+	
+	return CA;
+}
+
+double ydPerAtt(double yards, double attempt)
+{
+	double CA;
+	double CA1 = (yards / attempt);
+	
+	if (CA1 >= 12.5)
+	{
+		CA = 2.375;
+	}
+	else if(CA1 < 3.0)
+	{
+		CA = 0;
+	}
+	else 
+	{
+		CA = ((CA1- 3) * 0.25); 
+	}
+	
+	return CA;
+}
+
+double tdPerAtt(double td, double attempt)
+{
+	double CA;
+	double CA1 = (td / attempt);
+	
+	if (CA1 > .11875)
+	{
+		CA = 2.375;
+	}
+	else 
+	{
+		CA = (CA1 * 20); 
+	}
+	return CA;
+}
+
+double intPerAtt(double interception, double attempt)
+{
+	double CA;
+	double CA1 = (interception / attempt);
+	
+	if (CA1 == 0)
+	{
+		CA = 2.375;
+	}
+	else if(CA1 <= .095)
+	{
+		CA = (2.375 - (CA1 * 25));
+	}
+	else 
+	{
+		CA = 0;
+	}
+	return CA;
+}
+
+double calcPR(double compPer, double ydAtt, double tdAtt, double intAtt)
+{
+	return ((compPer + ydAtt + tdAtt + intAtt) / 6.0 ) * 100;
+}
+
+void pRating(double passerRating)
+{
+	cout << setprecision(1) << showpoint << fixed;
+	cout << "\nPasser Rating: " << passerRating << endl; 
+}
