@@ -1,0 +1,295 @@
+import Myro.*;
+/**
+ * Patrick Amaro Rivera
+ */
+public class MovingCircle extends MyroCircle
+{
+    public MovingCircle( MyroCanvas canvas, int x, int y,
+    int r, int dx, int dy )
+    {
+        // first, construct the MyroCircle
+        super(canvas, x, y, r);
+        // store values specific to a MovingCircle
+        deltaX = dx;
+        deltaY = dy;
+    }
+
+    /**
+     * Move the circle by the currently-stored direction
+     */
+    public void moveIt()
+    {
+        move( deltaX, deltaY );
+    }
+
+    /**
+     * Store a new direction of movement along the x-axis
+     *
+     * @param dx The new direction of movement along the
+     * x-axis
+     */
+    public void setDeltaX( int dx )
+    {
+        deltaX = dx;
+    }
+
+    /**
+     * Store a new direction of movement along the y-axis
+     *
+     * @param dy The new direction of movement along the
+     * y-axis
+     */
+    public void setDeltaY( int dy )
+    {
+        deltaY = dy;
+    }
+
+    /**
+     * Returns the current direction of movement along the
+     * x-axis
+     *
+     * @return The current direction of movement along the
+     * x-axis
+     */
+    public int getDeltaX()
+    {
+        return deltaX;
+    }
+
+    /**
+     * Returns the current direction of movement along the
+     * y-axis
+     *
+     * @return The current direction of movement along the
+     * y-axis
+     */
+    public int getDeltaY()
+    {
+        return deltaY;
+    }
+    
+    // Instance fields
+    private int deltaX;
+    private int deltaY;
+}
+ 
+////// Create New Class
+
+import Myro.*;
+import java.util.*;
+import java.awt.*;
+
+public class Breakout
+{
+    public void main()
+    {
+        // Create the MyroCanvas 
+        final int WIDTH = 500;
+        final int HEIGHT = 500;
+        MyroCanvas myCanvas = new MyroCanvas( "Breakout",
+                WIDTH, HEIGHT );       
+        boolean finished = false;
+
+        // Create the Paddle
+        MyroRectangle paddle;
+        paddle = new MyroRectangle( myCanvas, WIDTH/2-25, HEIGHT-25, 75, 10 );
+        paddle.makeFilled();
+        paddle.setFillColor( Color.black );
+        paddle.visible();
+        double sleepTime = 0.01;
+
+        // Create the ball at the center above the paddle and the random deltaX and deltaX
+        int deltaX = MyroUtils.randomInt(-4,4);
+        // This ensures that delta X is not 0.
+        while(deltaX == 0)
+        {
+            deltaX = MyroUtils.randomInt(-4,4);
+        }
+        // DeltaY is moving in a negative direction
+        int deltaY = MyroUtils.randomInt(-4,-1);
+        // Red ball is created and placed above the paddle. It also can move.
+        MovingCircle ball = new MovingCircle ( myCanvas, 250, HEIGHT-50, 15, deltaX, deltaY);
+        ball.makeFilled();
+        ball.setFillColor( Color.red );
+        ball.visible();
+
+        // Create the bricks by its dimensions and row count.
+        Collection<MyroRectangle> bricks = new ArrayList<MyroRectangle>();
+        int brickCount;
+        int widthBrick = 50;
+        int heightBrick = 20;
+        int row = 5;
+        
+        // This makes the system paint.
+        myCanvas.setAutoRepaint( false );
+
+        // Obtain the current time and place a countdown time
+        int countdown = 120;
+        long startTime = System.currentTimeMillis();
+
+        // Draw the bricks so it aligns in a row, is visible, and matches the dimensions
+        for( int i=0; i<row; i++)
+        {
+            for( int j=0; j < WIDTH / widthBrick; j++)
+            {
+                // This creates a random color
+                int red = MyroUtils.randomInt( 0, 255 );
+                int green = MyroUtils.randomInt( 0, 255 );
+                int blue = MyroUtils.randomInt( 0, 255 );
+
+                // This draws the dimensions of the bricks.
+                int x = j * widthBrick;
+                int y = 50 + i * heightBrick;
+
+                // This creates the rectangles and inputs the values we want.
+                MyroRectangle rectangles = new MyroRectangle( myCanvas, x, y,
+                        widthBrick, heightBrick );
+                rectangles.makeFilled();
+                rectangles.setFillColor( new Color( red, green, blue ) );
+                rectangles.visible();
+                bricks.add(rectangles );
+            }
+        }
+        // Get the number of bricks
+        brickCount = 50;
+        // Display the brick count.
+        MyroText countDisplay = new MyroText( myCanvas, 10, 10, String.valueOf(brickCount) );
+        countDisplay.visible();
+        // Display the current time 
+        MyroText timeDisplay = new MyroText( myCanvas, 425, 10, String.valueOf(120) );
+        timeDisplay.visible();
+
+        // This function is what is occuring while the code is running.
+        while( !finished )
+        {
+            // Subtract the time to get the time remaining.
+            long currentTime = System.currentTimeMillis();
+            long clock =(currentTime - startTime)/ 1000 ;
+            long remaining = 120 - clock;
+            // Move the ball by deltaX and deltaYmov
+            ball.moveIt();
+            for( MyroRectangle rectangles: bricks )
+            {
+                // Whenever the ball hits a brick, that brick will become invis-
+                // -ible and will decrease the brick count. 
+                if(intersects(rectangles,ball)&& rectangles.isVisible())
+                {        
+                    ball.setDeltaY( -ball.getDeltaY() );
+                    rectangles.invisible();
+                    brickCount--;
+                }
+            }
+            // Display the brick count and update it 
+            countDisplay.setText( String.valueOf(brickCount));
+            // Display the time that remains for the user to win the game
+            timeDisplay.setText( String.valueOf(remaining));
+
+            // This prevents the ball from getting out of the canvas. when
+            // it hits the sides, it will bounce off and move in the opposite
+            // direction.
+            if( (ball.getTop() < 0) )
+            {
+                ball.setDeltaY( -ball.getDeltaY() );
+            }
+            else if( (ball.getLeft() < 0) || (ball.getRight() >= WIDTH))
+            {
+                ball.setDeltaX( -ball.getDeltaX() );
+            }
+            // If the ball hits the bottom, the game is over.
+            else if ((ball.getBottom() >= HEIGHT ) )
+            {
+                finished = true;
+                MyroGUI.tellUser("Ball touched the bottom. Game Over");
+            }           
+
+            // When the ball hits the paddle, it will move in the opposite
+            // direction.
+            if( intersects( ball, paddle) )
+            {
+                ball.setDeltaY( -ball.getDeltaY() );                            
+            }
+
+            // This makes the code wait a bit
+            MyroUtils.sleep( sleepTime );
+
+            // When the user gets all of the bricks gone, the game will end.
+            if(brickCount == 0)
+            {
+                finished = true;
+            }
+
+            // If the user runs out of time, the game is over and he/she loses.
+            if( remaining == 0 )
+            {
+                finished = true;
+                MyroGUI.tellUser("You have run out of time. Game Over");
+            }
+            // This is the commands that occur when a key from the keyboard is 
+            // pressed. 
+            if( MyroListener.isKeyPressed() )
+            {
+                // User hits "q" to quit the game
+                if( MyroListener.whichKey() == 'q' )
+                {
+                    finished = true;
+                    MyroGUI.tellUser("You have quit the game. Game Over");
+                }
+                // User hits "+" to speed up the moving ball.
+                else if( MyroListener.whichKey() == '+' )
+                {
+                    sleepTime -= 0.001;
+                    if(sleepTime < 0.0)
+                    {
+                        sleepTime = 0.01;
+                    }
+                    // User hits "-" to speed up the moving ball.
+                }
+                else if( MyroListener.whichKey() == '-' )
+                {
+                    sleepTime += 0.001;
+                }
+                // User hits "a" to move the paddle left.
+                else if( MyroListener.whichKey() == 'a' )
+                {
+                    // move up, but can't go off top
+                    paddle.move( -5, 0 );
+                    if( paddle.getLeft() < 0 )
+                    {
+                        paddle.move( 5, 0 );
+                    }
+                }
+                // User hits "d" to move the paddle right.
+                else if( MyroListener.whichKey() == 'd' )
+                {
+                    paddle.move( 5, 0 );
+                    if( paddle.getRight() > WIDTH )
+                    {
+                        paddle.move( -5, 0 );
+                    }
+                }
+            }
+            myCanvas.repaint();
+        }
+        // Once the user gets all the bricks and the game ends.
+        // The user has won the game is displayed.
+        if(brickCount == 0)
+        {
+            MyroGUI.tellUser("You have won the game!");
+        }
+        // Make the myCanvas disappear
+        myCanvas.setVisible( false );
+    }
+
+    // This is the intersects code. This means that when two objects intersect. 
+    private boolean intersects( MyroShape s1, MyroShape s2 )
+    {
+        if( s1.getTop() > s2.getBottom() ||
+        s1.getBottom() < s2.getTop() ||
+        s1.getLeft() > s2.getRight() ||
+        s1.getRight() < s2.getLeft() )
+            return false;
+        else
+            return true;
+    }
+
+}
