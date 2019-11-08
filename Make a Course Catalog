@@ -1,0 +1,156 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+struct node
+{
+	string department;
+	int number;
+	string grade;
+	node* next;
+};
+
+void insert(node* &head, string x, int y, string z)
+{
+	node* add = new node;
+	add->department = x;
+	add->number = y;
+	add->grade = z;
+	add->next = head;
+	head = add;	
+}
+
+void remove(node* &head, string x, int y, string z)
+{
+	node* temp = head;
+	node* prev = NULL;
+	while(temp!= NULL)
+	{
+		if(temp->department == x)
+			if(temp->number == y)
+				if(temp->grade == z)
+					break;
+				prev = temp;
+				temp = temp-> next;
+	}
+	if(temp == NULL)
+	{
+		return;
+	}
+	if(prev == NULL)
+	{
+		head = head->next;
+		delete temp;
+		return;
+	}
+	prev->next = temp->next;
+	delete temp;
+}
+
+
+void print(node* head)
+{
+	node* temp = head;
+	while(temp != NULL)
+	{
+		cout << temp->department << " " << temp->number << " "<<temp->grade << endl;
+		temp = temp->next;
+	}
+}
+
+void printDep(node* head, string x)
+{
+	node* temp = head;
+	while(temp != NULL)
+	{
+		if(temp->department == x)
+		{
+			cout << temp->department << " " << temp->number << temp->grade << endl;	
+		}
+		temp = temp->next;
+	}
+	return;
+}
+
+int getNumber(int n)
+{
+	return n;
+}
+
+int main()
+{
+	int x;
+	cout << "Welcome to the Courses Guidelines!" << endl;
+	node* courseList = NULL;
+	do  
+	{
+		cout << "Please Select an option." << endl;
+		cout << "1. Insert a Course" << endl;
+		cout << "2. Remove a Course" << endl;
+		cout << "3. Display Course List (All)" << endl;
+		cout << "4. Display Course List (Department)"  << endl;
+		cout << "5. Quit the Program" << endl;
+		cout << "\n\nOption: ";
+		cin >> x;
+	
+		if(x == 1)
+		{
+			string cd;
+			int cn;
+			string cg;
+			cout << "Enter the course department: ";
+			cin >> cd; 
+			cout << "Enter the course number: ";
+			cin >> cn;
+			cout << "Enter course grade: ";
+			cin >> cg;
+			insert(courseList, cd, cn, cg);
+//			print(testt);
+		}
+		
+		else if(x == 2)
+		{
+			string ax;
+			int y3;
+			string z3;
+			cout << "Enter department course to remove: ";
+			cin >> ax;
+			cout << "Enter department number to remove: ";
+			cin >> y3;
+			cout << "Enter department grade to remove: ";
+			cin >> z3;
+			if(courseList == NULL)
+			{
+				cout << "No courses are here" << endl;
+			}
+			else if(courseList != NULL)
+			{
+				remove(courseList, ax, y3, z3);
+			}
+		}
+		else if (x == 3)
+		{
+			print(courseList);
+		}
+		else if(x == 4)
+		{
+			string CDD;
+			cout << "What course department that you want to list?: ";
+			cin >> CDD;
+			printDep(courseList, CDD);
+		}
+		else if(x == 5)
+		{
+			cout << "You have quit the Program" << endl;
+			break;
+			return 0;
+		}
+	    else
+	    {
+	    	cout << "You didn't put an option from 1-5" << endl;
+	    } 
+	    cout << endl;
+	} 
+	while(x != 5);
+	return 0;
+}
